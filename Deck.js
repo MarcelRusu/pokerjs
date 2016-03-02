@@ -1,5 +1,8 @@
 'use strict';
 
+/*
+  <Object> to attach value to the face of each card
+*/
 var Face = {
   'Ace'   : 1,
   '2'     : 2,
@@ -16,6 +19,9 @@ var Face = {
   'King'  : 13
 };
 
+/*
+  <Object> to attach value to the suit of each card
+*/
 var Suit = {
   'Clubs'    : 1,
   'Spades'   : 2,
@@ -23,39 +29,97 @@ var Suit = {
   'Hearts'   : 4
 };
 
+/*
+  Card class to manage card objects
+*/
 class Card {
+  /*
+    Constructor for Card class
+    pre:
+      face <String> - face of card
+      suit <String> - suit of card
+    post:
+      sets interal _face and _suit variable arrays for storing the string and
+      integer representation of the face and suit
+  */
   constructor(face, suit) {
-    this._value = [face, Face[face]] // Change
+    this._face = [face, Face[face]]
     this._suit = [suit, Suit[suit]]
   }
 
+  /*
+    Getter for _face
+    pre:
+      N/A
+    post:
+      returns:
+        val <Number> - the integer value for the the face of the card
+  */
   get value() {
-    return this._value[1];
+    const val = this._face[1]
+    return val;
   }
 
+  /*
+    Getter for _suit
+    pre:
+      N/A
+    post:
+      returns:
+        val <Number> - integer value for the the suit of the card
+  */
   get suit() {
-    return this._suit[1];
+    const suit = this._suit[1];
+    return suit;
   }
 
+  /*
+    Getter for the string representation of the Card Object
+    pre:
+      N/A
+    post:
+      returns:
+        str <String> - string representation of the object
+  */
   get str() {
-    return '(' + this._value[0] + ', ' + this._suit[0] + ')';
+    const str = '(' + this._face[0] + ', ' + this._suit[0] + ')'
+    return str;
   }
 
+  /*
+    Compare another <Card> with itself
+    pre:
+      rs <Card> - Card to be compared to
+    post:
+      res <Number> - if this > rs then 1, if this < rs then -1, else 0
+  */
   compare(rs) {
     // if
   }
 
-  equals(rs) {
+
+  equals(rs) { // replace with compare
     return this._value === rs._value && this._suit === rs._suit
   }
 }
 
+/*
+  Deck Class for storing and managing an Array of Card objects
+*/
 class Deck {
+  /*
+    Constructor for Deck class
+    pre:
+      cards <[Card]> - list of Card objects to be put in deck
+    post:
+      sets the value of _cards based off if cards is  undefined or not
+  */
   constructor(cards) {
     cards = cards || null;
     if (cards) {
       this._cards = cards;
     } else {
+      // Initiallizes the deck with a standard set of 52 cards
       this._cards = new Array();
       for (var face in Face) {
         for (var suit in Suit) {
@@ -63,11 +127,19 @@ class Deck {
         }
       }
     }
-    // this.shuffle()
   }
 
+  /*
+    Getter for _cards
+    pre:
+      N/A
+    post:
+      returns:
+        c_cards <[Card]> - a cloned version of _cards
+  */
   get cards() {
-    return R.clone(this._cards)
+    const c_cards = R.clone(this._cards);
+    return c_cards;
   }
 
   get front() {
