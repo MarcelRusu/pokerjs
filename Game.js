@@ -3,12 +3,12 @@
 class Game {
   constructor() {
     this._currentRound = null;
-    this._players =
+    this._players = []
     this._winner = null
   }
 
   play() {
-    while !this._winner {
+    while(!this._winner) {
       newRound()
     }
   }
@@ -25,7 +25,7 @@ class Round {
     this._hand = hand;
     this._pot = 0;
     this._winner = null;
-    // this._turn = 
+    // this._turn =
   }
 
 
