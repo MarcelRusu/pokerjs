@@ -96,23 +96,18 @@ class Card {
   compare(rs) {
     var res;
     if (this.value > rs.value) {
-      res = 1
+      res = 1;
     } else if (this.value < rs.value) {
-      res = -1
+      res = -1;
     } else if (this.suit > rs.suit) {
-      res = 1
+      res = 1;
     } else if (this.suit < rs.suit) {
-      res = -1
+      res = -1;
     } else {
-      res = 0
+      res = 0;
     }
 
-    return res
-  }
-
-
-  equals(rs) { // replace with compare
-    return this._value === rs._value && this._suit === rs._suit
+    return res;
   }
 }
 

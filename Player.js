@@ -16,33 +16,60 @@ class Hand {
   }
 
   addCard(card) {
-    this._cards.push(card)
+    this._cards.push(card);
+  }
+
+  get cards() {
+    return R.clone(this._cards);
   }
 }
 
 class PlayerHand extends Hand {
   constructor(cards) {
-    super(cards)
+    super(cards);
+  }
+
+  addCard(card) {
+    super.addCard(card);
+  }
+
+  get cards() {
+    return super.cards;
   }
 
   compare(hand) {
     if (hand instanceof PlayerHand) {
       for (card in cards) {
-        const c = card.compare();
 
       }
     }
   }
 
-  calcHand(middleHand) {
-    if () {
-      if (_isRoyalFlush(middleHand)) {
-
+  _combinedHand(middleHand) {
+    var cHand = [];
+    for (var i = 0; i < this._cards.length; i++) {
+      cHand.push(this._cards[i]);
+    }
+    if (middleHand) {
+      for (var i = 0; i < middleHand._cards.length; i++) {
+        cHand.push(middleHand._cards[i]);
       }
+    }
+    return cHand;
+  }
+
+  calcHand(middleHand) {
+    const cHand = this._combinedHand(middleHand);
+
+    console.log(cHand)
+
+    if (_isRoyalFlush(middleHand)) {
+
     }
   }
 
   _isRoyalFlush(middleHand) {
+    const cHand = this._combinedHand(middleHand);
 
   }
 
@@ -78,8 +105,21 @@ class PlayerHand extends Hand {
 
   }
 
-  _isHighCard() {
+  highCard(middleHand) {
+    if (this._cards.length == 0) {
+      throw 'No cards in hand to get a high card.';
+    }
+    const cHand = this._combinedHand(middleHand);
+    var hCard = cHand[0];
 
+    for (var i = 0; i < cHand.length; i++) {
+      var card = this._cards[i];
+      const c = card.compare(hCard);
+      if (c > 0) {
+        hCard = card;
+      }
+    }
+    return hCard;
   }
 }
 
