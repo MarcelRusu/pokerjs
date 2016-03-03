@@ -1,29 +1,23 @@
 'use strict';
 
+/*
+  Decision <Object> to essential act like an enum for possible decisions for
+  <Player> objects
+*/
 var Decision = {
   'Pass'  : 0,
   'Raise' : 1,
   'Fold'  : 2
 };
 
-var HandType = {
-  'Player' : 0,
-  'Middle' : 1
-};
-
-
-class Hand { // Abstract
+class Hand {
   constructor(cards) {
     this._cards = cards || [];
   }
 
-  addCard() {}
-
-  compare() {}
-}
-
-class MiddleHand extends Hand {
-
+  addCard(card) {
+    this._cards.push(card)
+  }
 }
 
 class PlayerHand extends Hand {
@@ -34,7 +28,8 @@ class PlayerHand extends Hand {
   compare(hand) {
     if (hand instanceof PlayerHand) {
       for (card in cards) {
-        if card.equals()
+        const c = card.compare();
+
       }
     }
   }
