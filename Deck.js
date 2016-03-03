@@ -135,17 +135,34 @@ class Deck {
       N/A
     post:
       returns:
-        c_cards <[Card]> - a cloned version of _cards
+        copyCards <[Card]> - a cloned version of _cards
   */
   get cards() {
-    const c_cards = R.clone(this._cards);
-    return c_cards;
+    const copyCards = R.clone(this._cards);
+    return copycards;
   }
 
+  /*
+    Getter for last value in _cards ([<Card>])
+    pre:
+      N/A
+    post:
+      returns:
+        copyFront <Card> - a cloned version of last value in _cards ([<Card>])
+  */
   get front() {
-    return R.clone(this._cards[this._cards.length - 1]);
+    const copyFront = R.clone(this._cards[this._cards.length - 1]);
+    return copyFront;
   }
 
+  /*
+    Getter a string representation of the Deck
+    pre:
+      N/A
+    post:
+      returns:
+        str <String> - string representation of the Deck object
+  */
   get str() {
     var str = '';
     for (var i = 0; i < this._cards.length; i++) {
@@ -154,24 +171,45 @@ class Deck {
     return str
   }
 
+  /*
+    Pops the last card off the deck
+    pre:
+      N/A
+    post:
+      returns:
+        pCard <Card> - the last value in _cards
+  */
   popCard() {
-    return this._cards.pop();
+    const pCard = this._cards.pop();
+    return pCard;
   }
 
+  /*
+    Pushes on a Card to the top of the Deck
+    pre:
+      card <Card> - Card object to add on to the top of the deck
+    post:
+      pushes card to _cards
+  */
   addCard(card) {
     this._cards.push(card);
   }
 
+  /*
+    Randomly shuffles the Deck
+    pre:
+      N/A
+    post:
+      creates a new Deck, and puts in all the cards in original _cards, but in
+      random order, then _cards is reassigned to a randomly shuffled deck cards
+  */
   shuffle() {
     var new_deck = new Deck([]);
     var indices = new Array();
-    var rand = 0;
+    var rand = Math.floor(Math.random() * this._cards.length);
+    indices.push(rand)
     for (var i = 0; i < this._cards.length; i++) {
-      if (indices.length !== 0) {
-        while (indices.indexOf(rand) !== -1) {
-          rand = Math.floor(Math.random() * this._cards.length);
-        }
-      } else {
+      while (indices.indexOf(rand) !== -1) {
         rand = Math.floor(Math.random() * this._cards.length);
       }
       indices.push(rand);
