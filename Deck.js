@@ -94,7 +94,20 @@ class Card {
       res <Number> - if this > rs then 1, if this < rs then -1, else 0
   */
   compare(rs) {
-    // if
+    var res;
+    if (this.value > rs.value) {
+      res = 1
+    } else if (this.value < rs.value) {
+      res = -1
+    } else if (this.suit > rs.suit) {
+      res = 1
+    } else if (this.suit < rs.suit) {
+      res = -1
+    } else {
+      res = 0
+    }
+
+    return res
   }
 
 
