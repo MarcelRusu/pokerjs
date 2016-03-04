@@ -13,14 +13,34 @@ var Decision = {
 class Hand {
   constructor(cards) {
     this._cards = cards || [];
+    this.length = this._cards.length;
   }
 
   addCard(card) {
     this._cards.push(card);
+    this.length += 1;
+  }
+
+  pop(i) {
+    if (this.length === 0) {
+      throw 'No cards in hand.'
+    }
+    const c = this._cards.pop(i);
+    this.length -= 1;
+    return c;
   }
 
   get cards() {
     return R.clone(this._cards);
+  }
+
+  contains(card) {
+    for (var i = 0; i < this._cards; i++) {
+      if (this._cards[i].deepCompare(card) === 0) { // meaning they are equal
+        return true;
+      }
+    }
+    return false;
   }
 }
 
@@ -113,10 +133,9 @@ class PlayerHand extends Hand {
     var hCard = cHand[0];
 
     for (var i = 0; i < cHand.length; i++) {
-      var card = this._cards[i];
-      const c = card.compare(hCard);
+      const c = cHand[i].deepCompare(hCard);
       if (c > 0) {
-        hCard = card;
+        hCard = cHand[i];
       }
     }
     return hCard;
