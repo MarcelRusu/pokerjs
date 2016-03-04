@@ -57,6 +57,10 @@ class PlayerHand extends Hand {
     return super.cards;
   }
 
+  contains(card) {
+    return super.contains(card);
+  }
+
   compare(hand) {
     if (hand instanceof PlayerHand) {
       for (card in cards) {
@@ -113,16 +117,66 @@ class PlayerHand extends Hand {
 
   }
 
-  _isThreeOfAKind() {
+  _isThreeOfAKind(middleHand) {
+    if (this._cards.length == 0) {
+      throw 'No cards in hand.';
+    }
 
+    const cHand = this._combinedHand(middleHand);
+
+    for (var i = 0; i < cHand.length; i++) {
+      for (var j = 0; j < cHand.length; j++) {
+        for (var n = 0; n < cHand.length; n++) {
+          if (cHand[i].compare(cHand[j]) === 0 && cHand[j].compare(cHand[n]) && i !== j && j !== n) {
+            return [cHand[i], cHand[j], cHand[n]];
+          }
+        }
+      }
+    }
   }
 
-  _isTwoPair() {
+  _isTwoPair(middleHand) {
+    if (this._cards.length == 0) {
+      throw 'No cards in hand.';
+    }
 
+    const cHand = this._combinedHand(middleHand);
+
+    var hands = [];
+
+    for (var i = 0; i < cHand.length; i++) {
+      for (var j = 0; j < cHand.length; j++) {
+        const couple = [cHand[i], cHand[j]];
+        var cond = cHand[i].compare(cHand[j]) === 0 && i !== j;
+        if (hands.length > 0) {
+          if (hands.length == 2) {
+            return hands;
+          }
+          cond = cHand[i].compare(cHand[j]) === 0
+          && i !== j && hands[0].indexOf(couple[0]) === -1
+          && hands[0].indexOf(couple[1]) === -1;
+        }
+        if (cond) {
+          hands.push(couple);
+        }
+      }
+    }
   }
 
-  _isOnePair() {
+  _isOnePair(middleHand) {
+    if (this._cards.length == 0) {
+      throw 'No cards in hand.';
+    }
 
+    const cHand = this._combinedHand(middleHand);
+
+    for (var i = 0; i < cHand.length; i++) {
+      for (var j = 0; j < cHand.length; j++) {
+        if (cHand[i].compare(cHand[j]) === 0 && i !== j) {
+          return [cHand[i], cHand[j]];
+        }
+      }
+    }
   }
 
   highCard(middleHand) {

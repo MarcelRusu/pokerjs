@@ -43,8 +43,8 @@ class Card {
       integer representation of the face and suit
   */
   constructor(face, suit) {
-    this._face = [face, Face[face]]
-    this._suit = [suit, Suit[suit]]
+    this._face = [face, Face[face]];
+    this._suit = [suit, Suit[suit]];
   }
 
   /*
@@ -56,7 +56,7 @@ class Card {
         val <Number> - the integer value for the the face of the card
   */
   get value() {
-    const val = this._face[1]
+    const val = this._face[1];
     return val;
   }
 
@@ -82,8 +82,20 @@ class Card {
         str <String> - string representation of the object
   */
   get str() {
-    const str = '(' + this._face[0] + ', ' + this._suit[0] + ')'
+    const str = '(' + this._face[0] + ', ' + this._suit[0] + ')';
     return str;
+  }
+
+  compare(rs) {
+    var res;
+    if (this.value > rs.value) {
+      res = 1;
+    } else if (this.value < rs.value) {
+      res = -1;
+    } else {
+      res = 0;
+    }
+    return res;
   }
 
   /*
@@ -93,7 +105,7 @@ class Card {
     post:
       res <Number> - if this > rs then 1, if this < rs then -1, else 0
   */
-  compare(rs) {
+  deepCompare(rs) {
     var res;
     if (this.value > rs.value) {
       res = 1;
@@ -134,6 +146,7 @@ class Deck {
           this._cards.push(new Card(face, suit));
         }
       }
+      this.length = this._cards.length;
     }
   }
 
@@ -187,8 +200,12 @@ class Deck {
       returns:
         pCard <Card> - the last value in _cards
   */
-  popCard() {
-    const pCard = this._cards.pop();
+  pop(i) {
+    if (this.length == 0) {
+      throw 'No cards in deck to pop.';
+    }
+    const pCard = this._cards.pop(i);
+    this.length -= 1;
     return pCard;
   }
 
@@ -201,6 +218,7 @@ class Deck {
   */
   addCard(card) {
     this._cards.push(card);
+    this.length += 1;
   }
 
   /*
