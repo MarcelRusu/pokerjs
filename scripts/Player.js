@@ -10,6 +10,19 @@ const Decision = {
   'Fold'  : 2
 };
 
+const HandValue = {
+  'RoyalFlush'      : 10,
+  'Straight Flush'  : 9,
+  'Four of a Kind'  : 8,
+  'Full House'      : 7,
+  'Flush'           : 6,
+  'Straight'        : 5,
+  'Three of a Kind' : 4,
+  'Two Pair'        : 3,
+  'One Pair'        : 2,
+  'High Card'       : 1
+}
+
 class Hand {
   constructor(cards) {
     this._cards = [];
@@ -86,6 +99,24 @@ class Hand {
     return false;
   }
 
+  print() {
+    for (var i = 0; i < this.length; i++) {
+      console.log(this._cards[i].str)
+    }
+  }
+
+  containsCards(cards) {
+    var contains = true;
+    for (var i = 0; i < cards.length; i++) {
+      if (!this.contains(cards[i])) {
+        contains = false;
+        break;
+      }
+    }
+
+    return contains;
+  }
+
   get str() {
     var str = '(';
 
@@ -155,6 +186,10 @@ class HandBySuit extends Hand { // ehhhhh do we need this???
     return super.contains(card);
   }
 
+  containsCards(cards) {
+    return super.containsCards(cards);
+  }
+
   get str() {
     return super.str;
   }
@@ -173,7 +208,6 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     super.addCards(cards);
   }
 
-
   getCard(i) {
     super.getCard(i);
   }
@@ -190,10 +224,19 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     return super.contains(card);
   }
 
+  containsCards(cards) {
+    return super.containsCards(cards);
+  }
+
   compare(hand) { // implement
     if (hand instanceof PlayerHand) {
-      for (card in cards) {
-
+      const value = hand.calcHand();
+      if (value > this.calcHand) {
+        return -1;
+      } else if (value < this.calcHand)  {
+        return 1;
+      } else {
+        return 0;
       }
     }
   }
@@ -213,43 +256,79 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
   }
 
   calcHand(middleHand) {
-    const cHand = this._combinedHand(middleHand);
-
-    console.log(cHand)
-
-    if (_isRoyalFlush(middleHand)) {
-
+    if (this._isRoyalFlush(middleHand)) {
+      return HandValue['Royal Flush'];
+    } else if (this._isStraightFlush(middleHand)) {
+      return HandValue['Straight Flush'];
+    } else if (this._isFourOfAKind(middleHand)) {
+      return HandValue['Four of a Kind'];
+    } else if (this._isFullHouse(middleHand)) {
+      return HandValue['Full House'];
+    } else if (this._flush instanceof Hand) {
+      return HandValue['Flush'];
+    } else if (this._straight instanceof Hand) {
+      return HandValue['Straight'];
+    } else if (this._threeOfAKind instanceof Hand) {
+      return HandValue['Three of a Kind'];
+    } else if (this._twoPair instanceof Hand) {
+      return HandValue['Two Pair'];
+    } else if (this._highPair instanceof Hand) {
+      return HandValue['One Pair'];
+    } else {
+      return HandValue['High Card'];
     }
   }
 
   _isRoyalFlush(middleHand) {
-    var cHand = this._combinedHand(middleHand);
+    var cHand = this._flush(middleHand);
 
     var isRoyal = false;
-
-    for (var i = 0; i < cHand.length - 5; i++) {
-      for (var j = i; j < cHand.length - 5 - i; j++) {
-        if (!cHand.isRoyal) {
+    if (cHand instanceof Hand) {
+      isRoyal = true;
+      for (var i = 0; i < cHand.length; i++) {
+        if (!cHand.getCard(i).isRoyal()) {
+          isRoyal = false;
           break;
-        } else if (j === cHand.length - i - 6) {
-          isRoyal = true;
         }
       }
     }
-
     return isRoyal;
   }
 
-  _isStraightFlush(middleHand) { // broken
-    return this._isFlush(middleHand) && this._isStraight(middleHand);
+  _isStraightFlush(middleHand) {
+    return this._flush(middleHand) instanceof Hand && this._straight(middleHand) instanceof Hand;
   }
 
-  _isFourOfAKind() { // not finished
+  _isFourOfAKind(middleHand) {
+    const cHand = this._combinedHand(middleHand);
+    if (cHand.length < 4) {
+      throw 'Not enough cards to be a four of a kind.';
+    }
 
+    for (var i = 0; i < cHand.length - 3) {
+      if (cHand.getCard(i).compare(cHand.getCard(i + 1)) === CardValue['Equal']
+        && cHand.getCard(i + 1).compare(cHand.getCard(i + 2)) === CardValue['Equal']
+        && cHand.getCard(i + 2).compare(cHand.getCard(i + 3)) === CardValue['Equal']) { // will only have one possible
+          return new Hand([cHand.getCard(i), cHand.getCard(i + 1), cHand.getCard(i + 2), cHand.getCard(i + 3)]);
+      }
+    }
   }
 
-  _isFullHouse() { // not finished
+  _isFullHouse(middleHand) {
+    const pairs = this._pairs(middleHand);
+    const three = this._threeOfAKind(middleHand);
+    if (!(three instanceof Hand && pairs instanceof Array)) {
+      throw 'no pairs or three of kinds :(';
+    }
 
+    // console.log(three.getCard(0).str + ' ' + three.getCard(1).str + ' ' + three.getCard(2).str);
+
+    for (var i = 0; i < pairs.length; i++) {
+      if (!three.containsCards(pairs[i].cards)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   _flush(middleHand) {
@@ -269,7 +348,9 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       }
     }
 
-    const hFlush = flushes[flushes.length - 1];
+    if (flushes.length > 0) {
+      var hFlush = new Hand(flushes[flushes.length - 1]);
+    }
 
     return hFlush;
   }
@@ -282,20 +363,12 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
     var straight = [];
 
-    for (var i = 0; i < cHand.length - 1; i++) { // CLEAN UP PLZZZ
+    for (var i = 0; i < cHand.length - 1; i++) {
       var index = cHand.length - i - 1;
-      // console.log(index - 4);
-      // console.log(cHand.getCard(index).str + ' '
-      // + cHand.getCard(index - 1).str + ' '
-      // + cHand.getCard(index - 2).str + ' '
-      // + cHand.getCard(index - 3).str + ' '
-      // + cHand.getCard(index - 4).str);
       var diff1 = cHand.getCard(index).diff(cHand.getCard(index - 1));
       var diff2 = cHand.getCard(index - 1).diff(cHand.getCard(index - 2));
       var diff3 = cHand.getCard(index - 2).diff(cHand.getCard(index - 3));
       var diff4 = cHand.getCard(index - 3).diff(cHand.getCard(index - 4));
-
-      // console.log(diff1, diff2, diff3, diff4);
 
       if (diff1 === 1 && diff2 === 1 && diff3 === 1 && diff4 === 1) {
         straight.push([cHand.getCard(index), cHand.getCard(index - 1),
@@ -325,7 +398,9 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       }
     }
 
-    const highThree = new Hand(three[three.length - 1]);
+    if (three.length > 0) {
+      var highThree = new Hand(three[three.length - 1]);
+    }
 
     return highThree;
   }
@@ -360,6 +435,11 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
   }
 
   _highPair(middleHand) {
+    const pairs = self._pairs(middleHand);
+    return pairs[pairs.length - 1];
+  }
+
+  _pairs(middleHand) {
     if (this.length === 0) {
       throw 'No cards in hand.';
     }
@@ -370,13 +450,11 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
     for (var i = 0; i < cHand.length - 1; i++) {
       if (cHand._cards[i].compare(cHand._cards[i + 1]) === CardValue['Equal']) {
-        pairs.push([cHand._cards[i], cHand._cards[i + 1]]);
+        pairs.push(new Hand([cHand._cards[i], cHand._cards[i + 1]]));
       }
     }
 
-    const highPair = new Hand(pairs[pairs.length - 1]);
-
-    return highPair;
+    return pairs;
   }
 
   _highCard(middleHand) {
