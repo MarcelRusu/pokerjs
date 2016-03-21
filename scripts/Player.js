@@ -169,15 +169,15 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     return this._isFlush(middleHand) && this._isStraight(middleHand);
   }
 
-  _isFourOfAKind() {
+  _isFourOfAKind() { // not finished
 
   }
 
-  _isFullHouse() {
+  _isFullHouse() { // not finished
 
   }
 
-  _isFlush(middleHand) { // broken
+  _flush(middleHand) { // broken
     const cHand = this._combinedHand(middleHand);
     const diff = cHand.length - 5;
     if (diff < 0) {
@@ -200,37 +200,50 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     return diffSuit === 0;
   }
 
-  _isStraight(middleHand) { // broken
+  _straight(middleHand) {
     const cHand = this._combinedHand(middleHand);
-    const diff = cHand.length - 5;
-    if (diff < 0) {
+    if (cHand.length - 5 < 0) {
       throw 'Not enough cards in hand to be a straight.';
     }
 
-    var diffValue = 1;
+    const cards = cHand.cards;
 
-    for (var i = 0; i < diff; i++) {
-      for (var j = i; j < 4 + i; j++) { // implement while
-        if (diffValue === 1) {
-          diffValue = cHand._cards[j+1].value - cHand._cards[j].value;
-          if (j === 3 + i) {
-            break;
-          }
-        }
+    var straight = [];
+
+    for (var i = 0; i < cHand.length - 5; i++) {
+      var index = cHand.length - i - 1;
+      if (cards[index].value - cards[index - 1].value === 1 // messy af
+        && cards[index - 1].value - cards[index - 2].value === 1
+        && cards[index - 2].value - cards[index - 3].value === 1
+        && cards[index - 3].value - cards[index - 4].value === 1) {
+        straight.push([cards[index], cards[index - 1], cards[index - 2], cards[index - 3], cards[index - 4]]);
       }
     }
 
-    return diffValue === 1;
+    const highStraight = straight[0]; // since loop started at the end of the hand of cards
+
+    return highStraight;
   }
 
-  _isThreeOfAKind(middleHand) {
+  _threeOfAKind(middleHand) {
     if (this.length === 0) {
       throw 'No cards in hand.';
     }
 
     const cHand = this._combinedHand(middleHand);
 
+    var three = []
 
+    for (var i = 0; i < cHand.length - 2; i++) {
+      if (cHand._cards[i].compare(cHand._cards[i + 1]) === CardValue['Equal']
+      && cHand._cards[i + 1].compare(cHand._cards[i + 2]) === CardValue['Equal']) {
+        three.push([cHand._cards[i], cHand._cards[i + 1], cHand._cards[i + 2]]);
+      }
+    }
+
+    const highThree = three[three.length - 1];
+
+    return highThree;
   }
 
   _twoPair(middleHand) {
@@ -260,10 +273,6 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     return hTwoPair;
   }
 
-  _isOnePair(middleHand) {
-    return this._highPair(middleHand) instanceof Array;
-  }
-
   _highPair(middleHand) {
     if (this.length === 0) {
       throw 'No cards in hand.';
@@ -271,7 +280,7 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
     const cHand = this._combinedHand(middleHand);
 
-    var pairs = []
+    const pairs = []
 
     for (var i = 0; i < cHand.length - 1; i++) {
       if (cHand._cards[i].compare(cHand._cards[i + 1]) === CardValue['Equal']) {
