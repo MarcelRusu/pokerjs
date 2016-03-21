@@ -90,7 +90,7 @@ class Hand {
   }
 }
 
-class PlayerHand extends Hand { // implement some sort cloning thing for setting and getting values!!!
+class PlayerHand extends Hand { // implement some sort cloning thing for setting and getting values!!! // do in depth testing
   constructor(cards) {
     super(cards);
   }
@@ -267,8 +267,6 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
     var hValue = hTwoPair[0][0].value + hTwoPair[0][1].value + hTwoPair[1][0].value + hTwoPair[1][1].value;
 
-    // console.log(twoPairs)
-
     for (var i = 1; i < twoPairs.length - 1; i++) { // broken
       const pairsA = twoPairs[i];
       const pairsB = twoPairs[i + 1];
@@ -306,14 +304,8 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       }
     }
 
-    var hPair = pairs[0];
-
-    for (var i = 0; i < pairs.length; i++) {
-      var pair = pairs[i]
-      if (pair[0].deepCompare(hPair[0]) === CardValue['Greater'] || pair[1].deepCompare(hPair[1] === CardValue['Greater'])) {
-        hPair = pair;
-      }
-    }
+    const hPair = pairs[pairs.length - 1];
+    
     return hPair;
   }
 
@@ -322,14 +314,7 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       throw 'No cards in hand to get a high card.';
     }
     const cHand = this._combinedHand(middleHand);
-    var hCard = cHand._cards[0];
-
-    for (var i = 0; i < cHand.length; i++) {
-      const c = cHand._cards[i].deepCompare(hCard);
-      if (c > 0) {
-        hCard = cHand._cards[i];
-      }
-    }
+    const hCard = cHand._cards[cHand.length - 1]; // unsafe not copy, find way to clone class objects
     return hCard;
   }
 }
