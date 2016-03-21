@@ -230,15 +230,7 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
     const cHand = this._combinedHand(middleHand);
 
-    for (var i = 0; i < cHand.length; i++) {
-      for (var j = 0; j < cHand.length; j++) {
-        for (var n = 0; n < cHand.length; n++) {
-          if (cHand._cards[i].compare(cHand._cards[j]) === 0 && cHand._cards[j].compare(cHand._cards[n]) && i !== j && j !== n) {
-            return [cHand._cards[i], cHand._cards[j], cHand._cards[n]];
-          }
-        }
-      }
-    }
+
   }
 
   _twoPair(middleHand) {
@@ -263,24 +255,7 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       }
     }
 
-    var hTwoPair = twoPairs[0];
-
-    var hValue = hTwoPair[0][0].value + hTwoPair[0][1].value + hTwoPair[1][0].value + hTwoPair[1][1].value;
-
-    for (var i = 1; i < twoPairs.length - 1; i++) { // broken
-      const pairsA = twoPairs[i];
-      const pairsB = twoPairs[i + 1];
-      const valueA = pairsA[0][0].value + pairsA[0][1].value + pairsA[1][0].value + pairsA[1][1].value;
-      const valueB = pairsB[0][0].value + pairsB[0][1].value + pairsB[1][0].value + pairsB[1][1].value;
-
-      if (valueA > hTwoPair && valueA > valueB) {
-        hTwoPair = pairsA;
-        hValue = valueA;
-      } else if (valueB > hTwoPair && valueB > valueA) {
-        hTwoPair = pairsA;
-        hValue = valueA
-      }
-    }
+    const highTwoPair = twoPairs[twoPairs.length - 1];
 
     return hTwoPair;
   }
@@ -304,18 +279,19 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       }
     }
 
-    const hPair = pairs[pairs.length - 1];
-    
-    return hPair;
+    const highPair = pairs[pairs.length - 1];
+
+    return highPair;
   }
 
   _highCard(middleHand) {
-    if (this._cards.length === 0) {
+    if (this.length === 0) {
       throw 'No cards in hand to get a high card.';
     }
-    const cHand = this._combinedHand(middleHand);
-    const hCard = cHand._cards[cHand.length - 1]; // unsafe not copy, find way to clone class objects
-    return hCard;
+
+    // getting last card in the combinded hand
+    const highCard = this._combinedHand(middleHand)._cards[this.length + middleHand.length - 1];
+    return highCard;
   }
 }
 
