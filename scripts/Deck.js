@@ -66,6 +66,18 @@ class Card {
     return val;
   }
 
+  diff(cardB) {
+    if (cardB instanceof Card) {
+      if ((cardB.value === 13 && this.value === 1) || (cardB.value === 1 && this.value === 1)) {
+        return 1;
+      } else {
+        return Math.abs(cardB.value - this.value);
+      }
+    } else {
+      throw cardB + ' is not of type <Card>.';
+    }
+  }
+
   /*
     Getter for _suit
     pre:

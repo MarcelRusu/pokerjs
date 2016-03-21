@@ -21,6 +21,31 @@ class Hand {
     return l;
   }
 
+  getCard(i) {
+    if (i < 0) {
+      return this._cards[this.length + i];
+    } else {
+      return this._cards[i];
+    }
+  }
+
+  suitOrdered() { // rekt me
+    // var suitOrder = [];
+    //
+    // for (var i = 0; i < this.length; i++) {
+    //   for (var j = 0; j < suitOrder.length; j++) {
+    //     var card = this.getCard(i);
+    //     if (card.suit < suitOrder[i].suit) {
+    //       break;
+    //     }
+    //   }
+    //   for (var n = 0; n < j; n++) {
+    //     suitOrder.push(this.getCard(n));
+    //   }
+    //   suitOrder.push(this.)
+    // }
+  }
+
   addCard(card) {
     if (!this.contains(card)) {
       // finds first index where inserted card is less than some card in the hand
@@ -89,6 +114,35 @@ class Hand {
     return str + ')';
   }
 }
+//
+// class SuitHand extends Hand {
+//   constructor(cards) {
+//     super(cards);
+//   }
+//
+//   addCard(card) {
+//     if (!this.contains(card)) {
+//       // finds first index where inserted card is less than some card in the hand
+//       for (var i = 0; i < this.length; i++) {
+//         if (card.deepCompare(this._cards[i]) === CardValue['Less']) {
+//           break;
+//         }
+//       }
+//       const index = i;
+//       const nCards = [];
+//       // pushes original cards before the inserted card index
+//       for (var i = 0; i < index; i++) {
+//         nCards.push(this._cards[i]);
+//       }
+//       nCards.push(card);
+//       // pushes rest of original cards
+//       for (var i = index; i < this.length; i++) {
+//         nCards.push(this._cards[i]);
+//       }
+//       this._cards = nCards;
+//     }
+//   }
+// }
 
 class PlayerHand extends Hand { // implement some sort cloning thing for setting and getting values!!! // do in depth testing
   constructor(cards) {
@@ -101,6 +155,11 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
   addCards(cards) {
     super.addCards(cards);
+  }
+
+
+  getCard(i) {
+    super.getCard(i);
   }
 
   get length() {
@@ -177,27 +236,28 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
   }
 
-  _flush(middleHand) { // broken
+  _flush(middleHand) {
     const cHand = this._combinedHand(middleHand);
-    const diff = cHand.length - 5;
-    if (diff < 0) {
+    if (cHand.length - 5 < 0) {
       throw 'Not enough cards in hand to be a straight.';
     }
 
-    var diffSuit = 0;
+    const flushes = [];
 
-    for (var i = 0; i < diff; i++) {
-      for (var j = i; j < 4 + i; j++) { // implement while
-        if (diffSuit === 0) {
-          diffSuit = cHand._cards[j+1].suit - cHand._cards[j].suit;
-          if (j === 3 + i) {
-            break;
-          }
+    for (var i = 0; i < cHand.length - 4; i++) { // RIPPPPP
+      if (cHand.getCard(i).suit === cHand.getCard(i + 1).suit
+        && cHand.getCard(i + 1).suit === cHand.getCard(i + 2).suit
+        && cHand.getCard(i + 2).suit === cHand.getCard(i + 3).suit
+        && cHand.getCard(i + 3).suit === cHand.getCard(i + 4).suit) {
+          flushes.push([cHand.getCard(i), cHand.getCard(i + 1), cHand.getCard(i + 2), cHand.getCard(i + 3), cHand.getCard(i + 4)]);
         }
-      }
     }
 
-    return diffSuit === 0;
+    if (flushes.length > 0) {
+      var hFlush = new Hand(flushes.pop());
+    }
+
+    return hFlush;
   }
 
   _straight(middleHand) {
@@ -206,21 +266,31 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       throw 'Not enough cards in hand to be a straight.';
     }
 
-    const cards = cHand.cards;
-
     var straight = [];
 
-    for (var i = 0; i < cHand.length - 5; i++) {
+    for (var i = 0; i < cHand.length - 1; i++) { // CLEAN UP PLZZZ
       var index = cHand.length - i - 1;
-      if (cards[index].value - cards[index - 1].value === 1 // messy af
-        && cards[index - 1].value - cards[index - 2].value === 1
-        && cards[index - 2].value - cards[index - 3].value === 1
-        && cards[index - 3].value - cards[index - 4].value === 1) {
-        straight.push([cards[index], cards[index - 1], cards[index - 2], cards[index - 3], cards[index - 4]]);
+      // console.log(index - 4);
+      // console.log(cHand.getCard(index).str + ' '
+      // + cHand.getCard(index - 1).str + ' '
+      // + cHand.getCard(index - 2).str + ' '
+      // + cHand.getCard(index - 3).str + ' '
+      // + cHand.getCard(index - 4).str);
+      var diff1 = cHand.getCard(index).diff(cHand.getCard(index - 1));
+      var diff2 = cHand.getCard(index - 1).diff(cHand.getCard(index - 2));
+      var diff3 = cHand.getCard(index - 2).diff(cHand.getCard(index - 3));
+      var diff4 = cHand.getCard(index - 3).diff(cHand.getCard(index - 4));
+
+      // console.log(diff1, diff2, diff3, diff4);
+
+      if (diff1 === 1 && diff2 === 1 && diff3 === 1 && diff4 === 1) {
+        straight.push([cHand.getCard(index), cHand.getCard(index - 1),
+                      cHand.getCard(index - 2), cHand.getCard(index - 3),
+                      cHand.getCard(index - 4)]);
       }
     }
 
-    const highStraight = straight[0]; // since loop started at the end of the hand of cards
+    const highStraight = new Hand(straight[0]); // since loop started at the end of the hand of cards
 
     return highStraight;
   }
@@ -241,7 +311,7 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       }
     }
 
-    const highThree = three[three.length - 1];
+    const highThree = new Hand(three[three.length - 1]);
 
     return highThree;
   }
@@ -270,7 +340,9 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
     const highTwoPair = twoPairs[twoPairs.length - 1];
 
-    return hTwoPair;
+    const handTwoPair = new Hand(twoPairs[0].concat(twoPairs[0]));
+
+    return handTwoPair;
   }
 
   _highPair(middleHand) {
@@ -288,7 +360,7 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       }
     }
 
-    const highPair = pairs[pairs.length - 1];
+    const highPair = new Hand(pairs[pairs.length - 1]);
 
     return highPair;
   }
