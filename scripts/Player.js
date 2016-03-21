@@ -22,28 +22,12 @@ class Hand {
   }
 
   getCard(i) {
+    // console.log('j')
     if (i < 0) {
       return this._cards[this.length + i];
     } else {
       return this._cards[i];
     }
-  }
-
-  suitOrdered() { // rekt me
-    // var suitOrder = [];
-    //
-    // for (var i = 0; i < this.length; i++) {
-    //   for (var j = 0; j < suitOrder.length; j++) {
-    //     var card = this.getCard(i);
-    //     if (card.suit < suitOrder[i].suit) {
-    //       break;
-    //     }
-    //   }
-    //   for (var n = 0; n < j; n++) {
-    //     suitOrder.push(this.getCard(n));
-    //   }
-    //   suitOrder.push(this.)
-    // }
   }
 
   addCard(card) {
@@ -54,8 +38,9 @@ class Hand {
           break;
         }
       }
+      // console.log(i)
       const index = i;
-      const nCards = [];
+      var nCards = [];
       // pushes original cards before the inserted card index
       for (var i = 0; i < index; i++) {
         nCards.push(this._cards[i]);
@@ -114,35 +99,66 @@ class Hand {
     return str + ')';
   }
 }
-//
-// class SuitHand extends Hand {
-//   constructor(cards) {
-//     super(cards);
-//   }
-//
-//   addCard(card) {
-//     if (!this.contains(card)) {
-//       // finds first index where inserted card is less than some card in the hand
-//       for (var i = 0; i < this.length; i++) {
-//         if (card.deepCompare(this._cards[i]) === CardValue['Less']) {
-//           break;
-//         }
-//       }
-//       const index = i;
-//       const nCards = [];
-//       // pushes original cards before the inserted card index
-//       for (var i = 0; i < index; i++) {
-//         nCards.push(this._cards[i]);
-//       }
-//       nCards.push(card);
-//       // pushes rest of original cards
-//       for (var i = index; i < this.length; i++) {
-//         nCards.push(this._cards[i]);
-//       }
-//       this._cards = nCards;
-//     }
-//   }
-// }
+
+class HandBySuit extends Hand { // ehhhhh do we need this???
+  constructor(cards) {
+    super(cards);
+  }
+
+  get length() {
+    return super.length;
+  }
+
+  getCard(i) {
+    return super.getCard(i);
+  }
+
+  addCards(cards) {
+    for (var i = 0; i < cards.length; i++) {
+      this.addCard(cards[i]);
+    }
+  }
+
+  addCard(card) {
+    if (!this.contains(card)) {
+      // finds first index where inserted card is less than some card in the hand
+      for (var i = 0; i < this.length; i++) {
+        if (card.suit < this._cards[i].suit) {
+          break;
+        }
+      }
+      // console.log(i)
+      const index = i;
+      var nCards = [];
+      // pushes original cards before the inserted card index
+      for (var i = 0; i < index; i++) {
+        nCards.push(this._cards[i]);
+      }
+      nCards.push(card);
+      // pushes rest of original cards
+      for (var i = index; i < this.length; i++) {
+        nCards.push(this._cards[i]);
+      }
+      this._cards = nCards;
+    }
+  }
+
+  pop() {
+    return super.pop();
+  }
+
+  get cards() {
+    return super.cards;
+  }
+
+  contains(card) {
+    return super.contains(card);
+  }
+
+  get str() {
+    return super.str;
+  }
+}
 
 class PlayerHand extends Hand { // implement some sort cloning thing for setting and getting values!!! // do in depth testing
   constructor(cards) {
@@ -237,25 +253,23 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
   }
 
   _flush(middleHand) {
-    const cHand = this._combinedHand(middleHand);
+    const cHand = new HandBySuit(this._combinedHand(middleHand).cards);
     if (cHand.length - 5 < 0) {
       throw 'Not enough cards in hand to be a straight.';
     }
 
     const flushes = [];
 
-    for (var i = 0; i < cHand.length - 4; i++) { // RIPPPPP
+    for (var i = 0; i < cHand.length - 4; i++) {
       if (cHand.getCard(i).suit === cHand.getCard(i + 1).suit
-        && cHand.getCard(i + 1).suit === cHand.getCard(i + 2).suit
-        && cHand.getCard(i + 2).suit === cHand.getCard(i + 3).suit
-        && cHand.getCard(i + 3).suit === cHand.getCard(i + 4).suit) {
-          flushes.push([cHand.getCard(i), cHand.getCard(i + 1), cHand.getCard(i + 2), cHand.getCard(i + 3), cHand.getCard(i + 4)]);
-        }
+      && cHand.getCard(i + 1).suit === cHand.getCard(i + 2).suit
+      && cHand.getCard(i + 2).suit === cHand.getCard(i + 3).suit
+      && cHand.getCard(i + 3).suit === cHand.getCard(i + 4).suit) {
+        flushes.push([cHand.getCard(i), cHand.getCard(i + 1), cHand.getCard(i + 2), cHand.getCard(i + 3), cHand.getCard(i + 4)]);
+      }
     }
 
-    if (flushes.length > 0) {
-      var hFlush = new Hand(flushes.pop());
-    }
+    const hFlush = flushes[flushes.length - 1];
 
     return hFlush;
   }
