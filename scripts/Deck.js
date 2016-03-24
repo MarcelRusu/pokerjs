@@ -68,7 +68,7 @@ class Card {
 
   diff(cardB) {
     if (cardB instanceof Card) {
-      if ((cardB.value === 13 && this.value === 1) || (cardB.value === 1 && this.value === 1)) {
+      if ((cardB.value === 13 && this.value === 1) || (cardB.value === 1 && this.value === 13)) {
         return 1;
       } else {
         return Math.abs(cardB.value - this.value);
@@ -169,8 +169,8 @@ class Deck {
       this._cards = cards;
     } else {
       // Initiallizes the deck with a standard set of 52 cards
-      this._cards = new Array();
-      for (var face in Face) {
+      this._cards = [];
+        for (var face in Face) { // does this work??
         for (var suit in Suit) {
           this._cards.push(new Card(face, suit));
         }
@@ -268,15 +268,16 @@ class Deck {
   */
   shuffle() {
     var new_deck = new Deck([]);
-    var indices = new Array();
+    var indices = [];
     var rand = Math.floor(Math.random() * this._cards.length);
-    indices.push(rand)
-    for (var i = 0; i < this._cards.length; i++) {
+    indices.push(rand);
+    new_deck.addCard(this._cards[rand]);
+    while (indices.length < this._cards.length) {
       while (indices.indexOf(rand) !== -1) {
         rand = Math.floor(Math.random() * this._cards.length);
       }
-      indices.push(rand);
       new_deck.addCard(this._cards[rand]);
+      indices.push(rand);
     }
     this._cards = new_deck.cards;
   }

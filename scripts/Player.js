@@ -26,7 +26,9 @@ const HandValue = {
 class Hand {
   constructor(cards) {
     this._cards = [];
-    this.addCards(cards);
+    if (cards instanceof Array) {
+      this.addCards(cards);
+    }
   }
 
   get length() {
@@ -34,8 +36,11 @@ class Hand {
     return l;
   }
 
+  get isEmpty() {
+    return this.length === 0;
+  }
+
   getCard(i) {
-    // console.log('j')
     if (i < 0) {
       return this._cards[this.length + i];
     } else {
@@ -92,17 +97,12 @@ class Hand {
 
   contains(card) {
     for (var i = 0; i < this.length; i++) {
+      // console.log(this._cards[i])
       if (this._cards[i].deepCompare(card) === CardValue['Equal']) {
         return true;
       }
     }
     return false;
-  }
-
-  print() {
-    for (var i = 0; i < this.length; i++) {
-      console.log(this._cards[i].str)
-    }
   }
 
   containsCards(cards) {
@@ -228,13 +228,17 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     return super.containsCards(cards);
   }
 
-  compare(hand) { // implement
+  compare(hand, middleHand) {
     if (hand instanceof PlayerHand) {
-      const value = hand.calcHand();
-      if (value > this.calcHand) {
+      const value = hand.calcHand(middleHand);
+      if (value > this.calcHand(middleHand)) {
         return -1;
-      } else if (value < this.calcHand)  {
+      } else if (value < this.calcHand(middleHand))  {
         return 1;
+      } else if (this._highCard(middleHand).deepCompare(hand._highCard(middleHand)) > 0) {
+        return 1;
+      } else if (this._highCard(middleHand).deepCompare(hand._highCard(middleHand) < 0)) {
+        return -1;
       } else {
         return 0;
       }
@@ -264,15 +268,15 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       return HandValue['Four of a Kind'];
     } else if (this._isFullHouse(middleHand)) {
       return HandValue['Full House'];
-    } else if (this._flush instanceof Hand) {
+    } else if (this._isFlush(middleHand)) {
       return HandValue['Flush'];
-    } else if (this._straight instanceof Hand) {
+    } else if (this._isStraight(middleHand)) {
       return HandValue['Straight'];
-    } else if (this._threeOfAKind instanceof Hand) {
+    } else if (this._isThreeOfAKind(middleHand)) {
       return HandValue['Three of a Kind'];
-    } else if (this._twoPair instanceof Hand) {
+    } else if (this._isTwoPair(middleHand)) {
       return HandValue['Two Pair'];
-    } else if (this._highPair instanceof Hand) {
+    } else if (this._isPair(middleHand)) {
       return HandValue['One Pair'];
     } else {
       return HandValue['High Card'];
@@ -286,7 +290,7 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     if (cHand instanceof Hand) {
       isRoyal = true;
       for (var i = 0; i < cHand.length; i++) {
-        if (!cHand.getCard(i).isRoyal()) {
+        if (!cHand.getCard(i).isRoyal) {
           isRoyal = false;
           break;
         }
@@ -305,7 +309,7 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       throw 'Not enough cards to be a four of a kind.';
     }
 
-    for (var i = 0; i < cHand.length - 3) {
+    for (var i = 0; i < cHand.length - 3; i++) {
       if (cHand.getCard(i).compare(cHand.getCard(i + 1)) === CardValue['Equal']
         && cHand.getCard(i + 1).compare(cHand.getCard(i + 2)) === CardValue['Equal']
         && cHand.getCard(i + 2).compare(cHand.getCard(i + 3)) === CardValue['Equal']) { // will only have one possible
@@ -318,17 +322,22 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     const pairs = this._pairs(middleHand);
     const three = this._threeOfAKind(middleHand);
     if (!(three instanceof Hand && pairs instanceof Array)) {
-      throw 'no pairs or three of kinds :(';
+      // throw 'no pairs or three of kinds :(';
     }
 
     // console.log(three.getCard(0).str + ' ' + three.getCard(1).str + ' ' + three.getCard(2).str);
-
-    for (var i = 0; i < pairs.length; i++) {
-      if (!three.containsCards(pairs[i].cards)) {
-        return true;
+    if (three) {
+      for (var i = 0; i < pairs.length; i++) {
+        if (!three.containsCards(pairs[i].cards)) {
+          return true;
+        }
       }
     }
     return false;
+  }
+
+  _isFlush(middleHand) {
+    return this._flush(middleHand) instanceof Hand;
   }
 
   _flush(middleHand) {
@@ -355,6 +364,10 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     return hFlush;
   }
 
+  _isStraight(middleHand) {
+    return this._straight instanceof Hand;
+  }
+
   _straight(middleHand) {
     const cHand = this._combinedHand(middleHand);
     if (cHand.length - 5 < 0) {
@@ -377,9 +390,14 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
       }
     }
 
-    const highStraight = new Hand(straight[0]); // since loop started at the end of the hand of cards
-
+    if (straight.length > 0) {
+      var highStraight = new Hand(straight[0]); // since loop started at the end of the hand of cards
+    }
     return highStraight;
+  }
+
+  _isThreeOfAKind(middleHand) {
+    return this._threeOfAKind instanceof Hand;
   }
 
   _threeOfAKind(middleHand) {
@@ -405,6 +423,10 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
     return highThree;
   }
 
+  _isTwoPair(middleHand) {
+    return this._twoPair(middleHand) instanceof Hand;
+  }
+
   _twoPair(middleHand) {
     if (this.length === 0) {
       throw 'No cards in hand.';
@@ -423,19 +445,22 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
 
     for (var i = 0; i < pairs.length - 1; i++) {
       if (pairs[i][0].compare(pairs[i + 1][0]) !== CardValue['Equal']) {
-        twoPairs.push([pairs[i], pairs[i + 1]]);
+        twoPairs.push(pairs[i].concat(pairs[i + 1]));
       }
     }
 
-    const highTwoPair = twoPairs[twoPairs.length - 1];
-
-    const handTwoPair = new Hand(twoPairs[0].concat(twoPairs[0]));
-
+    if (twoPairs.length > 0) {
+      var handTwoPair = new Hand(twoPairs[twoPairs.length - 1]);
+    }
     return handTwoPair;
   }
 
+  _isPair(middleHand) {
+    return this._highPair(middleHand) instanceof Hand;
+  }
+
   _highPair(middleHand) {
-    const pairs = self._pairs(middleHand);
+    const pairs = this._pairs(middleHand);
     return pairs[pairs.length - 1];
   }
 
@@ -468,20 +493,37 @@ class PlayerHand extends Hand { // implement some sort cloning thing for setting
   }
 }
 
-
-class Player { // incomplete
-  constructor(money, hand) {
-    this._hand = hand || null;
+class Player {
+  constructor(name, money) {
+    this._hand = new PlayerHand();
+    this._name = name;
     this._totalMoney = money;
     this._raise = null;
   }
 
-  makeDecision() {
-    // do stuff
+  compare(rs, middleHand) {
+    const c = this._hand.compare(rs.hand, middleHand);
+    return c;
+  }
+
+  get str() {
+    return this._name + ' ' + this._totalMoney
+  }
+
+  newHand() {
+    this._hand = new PlayerHand();
+  }
+
+  get name() {
+    return this._name;
   }
 
   set raise(r) {
     this._raise = r;
+  }
+
+  set win(m) {
+    this._totalMoney += m;
   }
 
   set hand(h) {
@@ -494,7 +536,7 @@ class Player { // incomplete
 
   get raise() {
     if (this._raise) {
-      const val = this._raise;
+      var val = this._raise;
       this._totalMoney -= val;
       this._raise = null;
     } else {
